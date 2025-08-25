@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'register.dart';
 import 'login_form.dart';
 import 'gbldc_splashscreen.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Poppins',
+        fontFamily: 'Outfit',
         primarySwatch: Colors.green,
       ),
       home: const GbldcSplashScreen(), // Start with Splash Screen

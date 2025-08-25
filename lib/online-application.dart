@@ -196,18 +196,6 @@ class RegistrationFormState extends State<RegistrationForm> {
                   style: TextStyle(color: Colors.black54, fontSize: 13),
                 ),
                 const SizedBox(height: 30),
-
-                // Example improved layout
-                _buildLabel("Salutation"),
-                _buildDropdown(
-                  value: selectedSalutation,
-                  items: ['Mr.', 'Ms.', 'Mrs.', 'Dr.'],
-                  onChanged: (value) =>
-                      setState(() => selectedSalutation = value),
-                  hint: 'Select salutation',
-                ),
-
-                const SizedBox(height: 16),
                 _buildLabel("Full Name"),
                 _buildInput(
                     controller: fullNameController, hint: "Enter full name"),
@@ -239,7 +227,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                     child: _buildInput(
                       controller: dobController,
                       hint: "DD-MM-YYYY",
-                      suffixIcon: Icons.calendar_today,
+                      suffixIcon: Iconsax.calendar_1,
                     ),
                   ),
                 ),
@@ -249,11 +237,6 @@ class RegistrationFormState extends State<RegistrationForm> {
                 _buildInput(
                     controller: birthPlaceController,
                     hint: "Enter place of birth"),
-
-                const SizedBox(height: 16),
-                _buildLabel("Email Address"),
-                _buildInput(
-                    controller: emailController, hint: "Enter email address"),
 
                 const SizedBox(height: 16),
                 _buildLabel("Phone Number"),

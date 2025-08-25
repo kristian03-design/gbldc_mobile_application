@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:iconsax/iconsax.dart';
@@ -53,7 +51,7 @@ class _CreditScorePageState extends State<CreditScorePage> {
       appBar: AppBar(
         title: const Text('Credit Score',
             style: TextStyle(fontWeight: FontWeight.w500)),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
         centerTitle: true,

@@ -42,16 +42,11 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0.5,
         centerTitle: true,
         title: const Text('Account', style: TextStyle(color: Colors.black)),
         actions: [
-          IconButton(
-            icon: const Icon(Iconsax.more),
-            onPressed: () {},
-            color: Colors.black,
-          ),
         ],
         iconTheme: const IconThemeData(color: Colors.black),
       ),

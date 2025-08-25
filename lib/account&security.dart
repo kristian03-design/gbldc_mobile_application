@@ -232,38 +232,6 @@ class _AccountSecurityPageState extends State<AccountSecurityPage> {
     );
   }
 
-  void _show2FADialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Enter 2FA Code"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Enter code"),
-          keyboardType: TextInputType.number,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // TODO: Call backend to verify code
-              setState(() => is2FAEnabled = true);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("2FA enabled!")),
-              );
-            },
-            child: const Text("Verify"),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _toggleBiometric(bool enable) async {
     if (enable) {
       bool canCheck = await auth.canCheckBiometrics;
@@ -419,45 +387,9 @@ class _AccountSecurityPageState extends State<AccountSecurityPage> {
           _buildSectionTitle("Security"),
           _buildCardTile("Change Password", Iconsax.lock,
               onTap: _showChangePasswordDialog),
-          _buildCardTile(
-            "Two-Factor Authentication",
-            Iconsax.shield_tick,
-            trailing: Switch(
-              value: is2FAEnabled,
-              activeColor: Colors.green,
-              onChanged: (val) {
-                if (!is2FAEnabled) {
-                  _show2FADialog();
-                } else {
-                  setState(() => is2FAEnabled = false);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("2FA disabled")),
-                  );
-                }
-              },
-            ),
-            onTap: () {
-              if (!is2FAEnabled) {
-                _show2FADialog();
-              } else {
-                setState(() => is2FAEnabled = false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("2FA disabled")),
-                );
-              }
-            },
-          ),
           _buildCardTile("Login Activity", Iconsax.activity,
               onTap: _showLoginActivityDialog),
           const SizedBox(height: 12),
-          SwitchListTile(
-            value: biometricEnabled,
-            onChanged: (val) => _toggleBiometric(val),
-            title: const Text("Enable Biometric Login",
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            activeColor: Colors.green,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-          )
         ],
       ),
     );
