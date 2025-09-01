@@ -113,14 +113,15 @@ flutter:
 
 
   fonts:
-    - family: Poppins
+    - family: Outfit
       fonts:
-        - asset: asset/fonts/Poppins-Regular.ttf
-        - asset: asset/fonts/Poppins-Bold.ttf
-        - asset: asset/fonts/Poppins-Medium.ttf
-        - asset: asset/fonts/Poppins-Light.ttf
-        - asset: asset/fonts/Poppins-ExtraLight.ttf
-        - asset: asset/fonts/Poppins-SemiBold.ttf
-        - asset: asset/fonts/Poppins-Thin.ttf
-        - asset: asset/fonts/Poppins-Black.ttf
+        - asset: asset/fonts/Outfit-Black.ttf
+        - asset: asset/fonts/Outfit-Bold.ttf
+        - asset: asset/fonts/Outfit-ExtraBold.ttf
+        - asset: asset/fonts/Outfit-ExtraLight.ttf
+        - asset: asset/fonts/Outfit-Light.ttf
+        - asset: asset/fonts/Outfit-Medium.ttf
+        - asset: asset/fonts/Outfit-Regular.ttf
+        - asset: asset/fonts/Outfit-SemiBold.ttf
+        - asset: asset/fonts/Outfit-Thin.ttf
           weight: 700
