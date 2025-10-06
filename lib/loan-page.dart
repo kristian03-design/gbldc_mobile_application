@@ -195,132 +195,133 @@ class _LoanPageHomepageState extends State<LoanPageHomepage> {
   }
 
   Widget _buildLoanLimitCard(String loanLimit) {
-    // Define styles for consistency and reusability
-    const cardBackgroundColor = Color(0xFFE8F5E9); // Softer green
-    const primaryTextColor = Colors.green;
-    const secondaryTextColor = Colors.black;
-    const tertiaryTextColor = Colors.grey;
-    const progressColor = Colors.green;
-    const buttonBackgroundColor = Colors.green;
-    const buttonTextColor = Colors.white;
-
-    const titleTextStyle = TextStyle(
-      color: primaryTextColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-    );
-    const amountTextStyle = TextStyle(
-      fontSize: 32,
-      fontWeight: FontWeight.bold,
-      color: secondaryTextColor,
-    );
-    const subtitleTextStyle = TextStyle(
-      fontSize: 14,
-      color: tertiaryTextColor,
-    );
-    const buttonLabelStyle = TextStyle(
-      fontSize: 16,
-      color: buttonTextColor,
-    );
-
-    return Card(
-      elevation: 4,
-      margin: EdgeInsets
-          .zero, // Remove default card margin if padding is handled by parent
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      color: cardBackgroundColor,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Stack(
-          children: [
-            Positioned(
-              top: -2, // Adjusted for better visual balance
-              right: -2, // Adjusted for better visual balance
-              child: Opacity(
-                opacity: 0.4, // Slightly more subtle
-                child:
-                    Icon(Iconsax.wallet_3, size: 80, color: primaryTextColor),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Available Loan Limit', style: titleTextStyle),
-                const SizedBox(height: 10),
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(
-                      begin: 0, end: 20000), // Your final loan value
-                  duration: const Duration(seconds: 2),
-                  curve: Curves.easeOut,
-                  builder: (context, value, _) {
-                    final animatedText =
-                        NumberFormat.currency(locale: 'en_PH', symbol: '₱')
-                            .format(value.round());
-                    return Text(animatedText, style: amountTextStyle);
-                  },
-                ),
-                const SizedBox(height: 8),
-                const Text('Up to your current approved limit',
-                    style: subtitleTextStyle),
-                const SizedBox(height: 20), // Increased spacing
-                TweenAnimationBuilder<double>(
-                  tween: Tween(
-                      begin: 0.0,
-                      end: 0.4), // Example value, adjust dynamically
-                  duration: const Duration(
-                      milliseconds: 1500), // Slightly faster animation
-                  curve: Curves.easeOutCubic, // Smoother curve
-                  builder: (context, value, _) {
-                    return ClipRRect(
-                      // Ensures the border radius is applied to the progress indicator
-                      borderRadius: BorderRadius.circular(14),
-                      child: LinearProgressIndicator(
-                        value: value,
-                        backgroundColor: Colors.green[100],
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(progressColor),
-                        minHeight: 10,
-                        borderRadius:
-                            BorderRadius.circular(6), // Slightly thicker //
-                      ),
-                    );
-                  },
-                ),
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: 0.4), // Same tween as above
-                  duration: const Duration(milliseconds: 1500), // Same duration
-                  curve: Curves.easeOutCubic, // Same curve
-                  builder: (context, value, _) {
-                    // Now 'value' directly gives the progress from this TweenAnimationBuilder
-                    return Column(
-                      children: [
-                        const SizedBox(height: 4),
-                        Text("${(value * 100).toStringAsFixed(0)}% Paid",
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.black54)),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF16A34A), Color(0xFF15803D)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF16A34A).withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Available Loan Limit',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Active',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: 20000),
+            duration: const Duration(seconds: 2),
+            curve: Curves.easeOut,
+            builder: (context, value, _) {
+              final animatedText = NumberFormat.currency(locale: 'en_PH', symbol: '₱').format(value.round());
+              return Text(
+                animatedText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -1,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Maximum approved credit limit',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 0.4),
+                      duration: const Duration(milliseconds: 1500),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                value: value,
+                                backgroundColor: Colors.white.withOpacity(0.3),
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                minHeight: 8,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "${(value * 100).toStringAsFixed(0)}% Utilized",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
+
   Widget _buildLoanStatusCard() {
-    // Define text styles and colors for consistency and easier modification
     const titleStyle = TextStyle(
         fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87);
     const detailStyle = TextStyle(fontSize: 14, color: Colors.black54);
-    const spacing = SizedBox(height: 8); // Consistent spacing
 
-    // Define button styles locally
     const buttonBackgroundColor = Colors.green;
     const buttonTextColor = Colors.white;
     const buttonLabelStyle = TextStyle(
@@ -331,43 +332,24 @@ class _LoanPageHomepageState extends State<LoanPageHomepage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white, // Using white for a cleaner look, can be adjusted
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.15),
             spreadRadius: 1,
             blurRadius: 5,
-            offset: const Offset(2, 8), // changes position of shadow
+            offset: const Offset(2, 8),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: const [
-              Icon(Iconsax.activity, color: Colors.blueAccent, size: 20),
-              SizedBox(width: 8),
-              Text('Status: Active', style: titleStyle),
-            ],
-          ),
-          spacing,
-          Row(
-            children: const [
-              Icon(Iconsax.calendar, color: Colors.orangeAccent, size: 18),
-              SizedBox(width: 8),
-              Text('Next payment due: Aug 15, 2025', style: detailStyle),
-            ],
-          ),
-          spacing,
-          Row(
-            children: const [
-              Icon(Iconsax.wallet_check, color: Colors.green, size: 18),
-              SizedBox(width: 8),
-              Text('Remaining balance: ₱11,500', style: detailStyle),
-            ],
-          ),
+          _buildInfoRow(Iconsax.calendar, 'Next Payment Due', 'Aug 15, 2025', Colors.orange),
+          const SizedBox(height: 16),
+          _buildInfoRow(Iconsax.wallet_check, 'Remaining Balance', '₱11,500', const Color(0xFF16A34A)),
+          const SizedBox(height: 16),
+          _buildInfoRow(Iconsax.money_send, 'Monthly Payment', '₱2,500', Colors.purple),
           const SizedBox(height: 16),
           Center(
             child: Column(
@@ -394,16 +376,15 @@ class _LoanPageHomepageState extends State<LoanPageHomepage> {
                       ),
                     );
                   },
-                  label: Text('Pay Loan', style: buttonLabelStyle),
+                  label: Text('Make a Payment', style: buttonLabelStyle),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: buttonBackgroundColor,
-                    minimumSize: const Size(double.infinity, 50), // Full width
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 35, vertical: 8),
+                    minimumSize: const Size(double.infinity, 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    elevation: 2, // Added slight elevation to button
+                    elevation: 2,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -420,6 +401,45 @@ class _LoanPageHomepageState extends State<LoanPageHomepage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

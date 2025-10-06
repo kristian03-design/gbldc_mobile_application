@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'loan-page.dart';
@@ -8,94 +9,86 @@ import 'explore_services_page.dart';
 import 'smart_money_tips_page.dart';
 import 'news_details_page.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Outfit',
-        primarySwatch: Colors.green,
-      ),
-    );
-  }
-}
-
-class LandingPage extends StatefulWidget {
-  // Added this wrapper back
-  const LandingPage({super.key});
-
-  @override
-  _LandingPageState createState() => _LandingPageState();
-}
-
-// --- Constants (assuming these are defined elsewhere or at the top of your file) ---
+// Constants
 const Duration kDefaultTransitionDuration = Duration(milliseconds: 800);
 const double kDefaultPadding = 16.0;
-const Color kPrimaryColor = Colors.green; // Assuming this is your primary color
+const Color kPrimaryColor = Colors.green;
 const Color kAppBarTextColor = Colors.black;
-const Color kScaffoldBackgroundColor = Color(0xFFF4F6F9);
+const Color kScaffoldBackgroundColor = Color(0xFFF9FAFB);
 
 class NewsEvent {
   final String title;
   final String description;
   final String imagePath;
   final List<String>? imagePaths;
+  final String? date;
+  final String? category;
 
   const NewsEvent({
     required this.title,
     required this.description,
     required this.imagePath,
     this.imagePaths,
+    this.date,
+    this.category,
   });
 }
 
-List<String> notifications = [
-  'Loan application approved',
-  'New payment due date',
-  'System maintenance scheduled',
-  'New message from support',
-  'Loan application is under review',
-  'Loan application is rejected',
-];
-Set<int> unreadNotificationIndexes = {0, 1, 2, 3, 4, 5};
+// Notification Manager
+class NotificationManager {
+  static List<String> notifications = [
+    'Loan application approved',
+    'New payment due date',
+    'System maintenance scheduled',
+    'New message from support',
+    'Loan application is under review',
+    'Loan application is rejected',
+  ];
 
-int get unreadCount => unreadNotificationIndexes.length;
+  static Set<int> unreadNotificationIndexes = {0, 1, 2, 3, 4, 5};
 
-// --- Navigation Helper (assuming it's defined as before) ---
+  static int get unreadCount => unreadNotificationIndexes.length;
+}
+
+// Navigation Helper
 Future<void> navigateWithFade(BuildContext context, Widget page) {
+  HapticFeedback.lightImpact();
   return Navigator.push(
     context,
     PageRouteBuilder(
       transitionDuration: kDefaultTransitionDuration,
       pageBuilder: (context, animation, _) => page,
       transitionsBuilder: (context, animation, _, child) {
-        final curved =
-            CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
         return FadeTransition(opacity: curved, child: child);
       },
     ),
   );
 }
 
-class _LandingPageState extends State<LandingPage> {
+class LandingPage extends StatefulWidget {
+  const LandingPage({super.key});
+
+  @override
+  _LandingPageState createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   bool _showGreeting = true;
+  late AnimationController _fabController;
 
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey<RefreshIndicatorState>();
+  final ScrollController _scrollController = ScrollController();
+  bool _showFab = false;
 
   final List<NewsEvent> _newsAndEvents = const [
     NewsEvent(
       title: 'Annual General Assembly',
       description: 'Join us for our annual meeting and updates.',
       imagePath: 'assets/images/gbldc_event_annual_assembly.jpg',
+      date: 'October 15, 2025',
+      category: 'Event',
       imagePaths: [
         'assets/images/event1.jpg',
         'assets/images/gbldc_event_2-20.jpg',
@@ -116,59 +109,87 @@ class _LandingPageState extends State<LandingPage> {
     ),
     NewsEvent(
       title: 'Community Outreach Program',
-      description:
-          'Serving the barangay together through health and donation drives.',
+      description: 'Serving the barangay together through health and donation drives.',
       imagePath: 'assets/images/event4.jpg',
+      date: 'September 20, 2025',
+      category: 'Community',
       imagePaths: [
-        'assets/images/event4.jpg', // Assuming the main image is also part of the details
-        'assets/images/community_outreach_1.jpg', // Example additional image
-        'assets/images/community_outreach_2.jpg', // Example additional image
+        'assets/images/event4.jpg',
+        'assets/images/community_outreach_1.jpg',
+        'assets/images/community_outreach_2.jpg',
       ],
     ),
     NewsEvent(
       title: 'Kick-Off Ceremony and Launching of Go Koop',
-      description:
-          'Empowering Cooperatives in line with the Celebration of Cooperative Month 2023',
+      description: 'Empowering Cooperatives in line with the Celebration of Cooperative Month 2023',
       imagePath: 'assets/images/event2.jpg',
+      date: 'July 10, 2025',
+      category: 'Launch',
       imagePaths: [
-        'assets/images/event2.jpg', // Assuming the main image is also part of the details
-        'assets/images/go_koop_launch_1.jpg', // Example additional image
+        'assets/images/event2.jpg',
+        'assets/images/go_koop_launch_1.jpg',
       ],
     ),
     NewsEvent(
       title: 'GBLDC - Team Building',
-      description:
-          'Strengthening teamwork through fun and engaging activities with all departments.',
+      description: 'Strengthening teamwork through fun and engaging activities with all departments.',
       imagePath: 'assets/images/gbldc_event_team_building.jpg',
-        imagePaths: [
-          'assets/images/gbldc_event_team_building_1.jpg',
-          'assets/images/gbldc_event_team_building_2.jpg',
-          'assets/images/gbldc_event_team_building_3.jpg',
-        ]
+      date: 'August 5, 2025',
+      category: 'Team Building',
+      imagePaths: [
+        'assets/images/gbldc_event_team_building_1.jpg',
+        'assets/images/gbldc_event_team_building_2.jpg',
+        'assets/images/gbldc_event_team_building_3.jpg',
+      ],
     ),
   ];
-  Future<void> _refreshData() async {
-    // Simulate network/data fetching delay
-    await Future.delayed(const Duration(seconds: 1));
 
-    // Example: Reset greeting and notifications (customize as needed)
-    setState(() {
-      _showGreeting = true;
-      // Optionally reset notifications or reload data here
-      // notifications = [...]; // fetch or reset your notifications
-      // unreadNotificationIndexes = {...}; // reset as needed
+  @override
+  void initState() {
+    super.initState();
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 200 && !_showFab) {
+        setState(() => _showFab = true);
+        _fabController.forward();
+      } else if (_scrollController.offset <= 200 && _showFab) {
+        setState(() => _showFab = false);
+        _fabController.reverse();
+      }
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refreshData() async {
+    HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
+      setState(() {
+        _showGreeting = true;
+      });
+    }
+  }
+
   void _onItemTapped(int index) {
+    HapticFeedback.selectionClick();
+
     if (index == 0 && _selectedIndex == 0) {
-      _refreshKey.currentState?.show(); // Programmatically trigger refresh
+      _refreshKey.currentState?.show();
       return;
     }
+
     if (index == 0) {
-      setState(() {
-        _selectedIndex = index;
-      });
+      setState(() => _selectedIndex = index);
     } else if (index == 1) {
       navigateWithFade(context, LoanPageHomepage());
     } else if (index == 2) {
@@ -183,53 +204,76 @@ class _LandingPageState extends State<LandingPage> {
     return 'Good Evening!';
   }
 
+  void _scrollToTop() {
+    HapticFeedback.lightImpact();
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kScaffoldBackgroundColor,
       bottomNavigationBar: _buildBottomNavigationBar(),
+      floatingActionButton: _showFab
+          ? ScaleTransition(
+        scale: _fabController,
+        child: FloatingActionButton.small(
+          onPressed: _scrollToTop,
+          backgroundColor: kPrimaryColor,
+          child: const Icon(Iconsax.arrow_up_2, color: Colors.white, size: 20),
+        ),
+      )
+          : null,
       body: SafeArea(
-        child: Container(
-          color: Colors
-              .white, // Or kScaffoldBackgroundColor if you want consistency
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-            child: RefreshIndicator(
-              key: _refreshKey,
-              onRefresh: _refreshData, // Your updated refresh logic
-              color: kPrimaryColor, // Spinner color
-              backgroundColor: Colors.white, // Background of the spinner circle
-              strokeWidth:
-                  3.0, // Thickness of the spinner line (default is 2.0)
-              displacement:
-                  60.0, // Distance from child's top edge to trigger (default is 40.0)
-              edgeOffset:
-                  15.0, // Distance from the edge of scrollable content where indicator appears
-              semanticsLabel:
-                  'Pull to refresh home screen', // For accessibility
-              semanticsValue: 'Refreshing content', // For accessibility
-              child: ListView(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildAppBarContent(),
-                  const SizedBox(height: 12),
-                  if (_showGreeting)
-                    _GreetingCard(
-                      greeting: _getGreeting(),
-                      onDismissed: () {
-                        setState(() {
-                          _showGreeting = false;
-                        });
-                      },
-                    ),
-                  const SizedBox(height: 12),
-                  _buildNewsAndEventsCarousel(), // Using the version from your snippet, adapted
-                  const SizedBox(height: 18),
-                  _buildMainActionCards(),
-                  const SizedBox(height: 20), // Padding at the bottom
-                ],
+        child: RefreshIndicator(
+          key: _refreshKey,
+          onRefresh: _refreshData,
+          color: kPrimaryColor,
+          backgroundColor: Colors.white,
+          strokeWidth: 3.0,
+          displacement: 60.0,
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverToBoxAdapter(
+                child: Container(
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(kDefaultPadding, 20, kDefaultPadding, 16),
+                        child: _buildAppBarContent(),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    const SizedBox(height: 12),
+                    if (_showGreeting) ...[
+                      _GreetingCard(
+                        greeting: _getGreeting(),
+                        onDismissed: () => setState(() => _showGreeting = false),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    _buildNewsAndEventsCarousel(),
+                    const SizedBox(height: 24),
+
+                    _buildMainActionCards(),
+                    const SizedBox(height: 32),
+                  ]),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -243,29 +287,40 @@ class _LandingPageState extends State<LandingPage> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
-            blurRadius: 5,
-            offset: const Offset(0, -5),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        selectedItemColor: kPrimaryColor,
-        unselectedItemColor: kAppBarTextColor.withOpacity(0.7),
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-        unselectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Iconsax.home_1), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Iconsax.money_4), label: 'Loan'),
-          BottomNavigationBarItem(
-              icon: Icon(Iconsax.profile_circle5), label: 'Profile'),
-        ],
-        onTap: _onItemTapped,
+      child: SafeArea(
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          selectedItemColor: kPrimaryColor,
+          unselectedItemColor: kAppBarTextColor.withOpacity(0.6),
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Iconsax.home),
+              activeIcon: Icon(Iconsax.home_15),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Iconsax.money_4),
+              activeIcon: Icon(Iconsax.money_45),
+              label: 'Loan',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Iconsax.profile_circle),
+              activeIcon: Icon(Iconsax.profile_circle5),
+              label: 'Profile',
+            ),
+          ],
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }
@@ -274,153 +329,239 @@ class _LandingPageState extends State<LandingPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Image.asset('assets/images/logocoop.png', height: 45, width: 45),
-        const Text(
-          'GBLDC',
-          style: TextStyle(
-              fontSize: 22,
-              color: kAppBarTextColor,
-              fontWeight: FontWeight.w600),
-        ),
-        Stack(
+        Row(
           children: [
-            CircleAvatar(
-              backgroundColor: Colors.green[50],
-              child: IconButton(
-                icon: const Icon(Iconsax.notification,
-                    color: Colors.green, size: 25),
-                onPressed: () => showNotificationsPopup(context),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: kPrimaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: Image.asset('assets/images/logocoop.png', height: 32, width: 32),
             ),
-            if (unreadCount > 0)
-              Positioned(
-                right: 6,
-                top: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '$unreadCount',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w400,
-                    ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'GBLDC',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: kAppBarTextColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
                   ),
                 ),
-              ),
+                Text(
+                  'Cooperative',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ],
+        ),
+        _NotificationBell(
+          unreadCount: NotificationManager.unreadCount,
+          onPressed: () => _showNotificationsBottomSheet(context),
         ),
       ],
     );
   }
 
   Widget _buildNewsAndEventsCarousel() {
-    // Adapted from your snippet
     if (_newsAndEvents.isEmpty) {
-      return const Center(
-          child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 20.0),
-        child: Text("No news or events at the moment.",
-            style: TextStyle(color: Colors.grey)),
-      ));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Column(
+            children: [
+              Icon(Iconsax.document, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 12),
+              Text(
+                "No news or events at the moment.",
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
     }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
-          child: Text(
-            'News & Events',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: kAppBarTextColor),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'News & Events',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: kAppBarTextColor,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigate to all news page
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(50, 30),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'View All',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Iconsax.arrow_right_3, size: 14, color: kPrimaryColor),
+                ],
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 16),
         CarouselSlider(
           options: CarouselOptions(
-            height: 180.0,
+            height: 200.0,
             autoPlay: true,
             enlargeCenterPage: true,
             aspectRatio: 16 / 9,
-            autoPlayCurve: Curves.fastOutSlowIn,
+            autoPlayCurve: Curves.easeInOutCubic,
             enableInfiniteScroll: true,
-            autoPlayAnimationDuration: const Duration(milliseconds: 900),
-            viewportFraction: 0.85,
+            autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+            viewportFraction: 0.88,
           ),
           items: _newsAndEvents.map((eventItem) {
             return Builder(
               builder: (BuildContext context) {
                 return GestureDetector(
                   onTap: () {
+                    HapticFeedback.lightImpact();
                     navigateWithFade(
                       context,
                       NewsDetailPage(
                         title: eventItem.title,
                         description: eventItem.description,
-                        imagePath:
-                            eventItem.imagePaths ?? [eventItem.imagePath],
+                        imagePath: eventItem.imagePaths ?? [eventItem.imagePath],
                       ),
                     );
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    margin: const EdgeInsets.symmetric(horizontal: 6.0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: AssetImage(eventItem.imagePath),
-                        fit: BoxFit.cover,
-                      ),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.15),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         )
                       ],
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.8),
-                            Colors.black.withOpacity(0.0)
-                          ],
-                          stops: const [0.0, 0.7],
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        fit: StackFit.expand,
                         children: [
-                          Text(
-                            eventItem.title,
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          Image.asset(
+                            eventItem.imagePath,
+                            fit: BoxFit.cover,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            eventItem.description,
-                            style: TextStyle(
-                              fontSize: 13.0,
-                              color: Colors.white.withOpacity(0.9),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
+                                stops: const [0.5, 1.0],
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Positioned(
+                            left: 16,
+                            right: 16,
+                            bottom: 16,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (eventItem.category != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: kPrimaryColor,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      eventItem.category!,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  eventItem.title,
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  eventItem.description,
+                                  style: const TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (eventItem.date != null) ...[
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Iconsax.calendar_1,
+                                        size: 12,
+                                        color: Colors.white70,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        eventItem.date!,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -439,34 +580,36 @@ class _LandingPageState extends State<LandingPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4.0, bottom: 12.0, top: 10.0),
-          child: Text(
-            'Quick Actions',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: kAppBarTextColor),
+        const Text(
+          'Quick Actions',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: kAppBarTextColor,
           ),
         ),
+        const SizedBox(height: 16),
         _ActionCard(
           title: 'Borrow Your Way',
           subtitle: 'Apply once for continuous access to cash.',
           imagePath: 'assets/images/gbldc-borrow-money.png',
+          gradient: LinearGradient(
+            colors: [Colors.green.shade50, Colors.green.shade100],
+          ),
           buttons: [
-            ElevatedButton(
-              onPressed: () =>
-                  navigateWithFade(context, const RegistrationForm()),
+            ElevatedButton.icon(
+              onPressed: () => navigateWithFade(context, const RegistrationForm()),
+              icon: const Icon(Iconsax.edit, size: 18),
+              label: const Text('Apply Now'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: kPrimaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                elevation: 0,
               ),
-              child: const Text('Online Application',
-                  style: TextStyle(fontSize: 13)),
             ),
           ],
         ),
@@ -474,22 +617,22 @@ class _LandingPageState extends State<LandingPage> {
           title: 'Explore Our Services',
           subtitle: 'Microloans, livelihood programs, and more.',
           imagePath: 'assets/images/gbldc-explore-services.png',
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade50, Colors.blue.shade100],
+          ),
           buttons: [
-            TextButton(
-              onPressed: () =>
-                  navigateWithFade(context, const ExploreServicesPage()),
-              style: TextButton.styleFrom(
-                backgroundColor: kPrimaryColor.withOpacity(0.1),
+            OutlinedButton.icon(
+              onPressed: () => navigateWithFade(context, const ExploreServicesPage()),
+              icon: const Icon(Iconsax.search_normal_1, size: 18),
+              label: const Text('Explore'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.blue.shade700,
+                side: BorderSide(color: Colors.blue.shade300),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
-              child: const Text('EXPLORE',
-                  style: TextStyle(
-                      color: kPrimaryColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -497,26 +640,99 @@ class _LandingPageState extends State<LandingPage> {
           title: 'Smart Money Tips',
           subtitle: 'Save, budget, and manage your finances.',
           imagePath: 'assets/images/finance-tips.png',
+          gradient: LinearGradient(
+            colors: [Colors.orange.shade50, Colors.orange.shade100],
+          ),
           buttons: [
-            TextButton(
-              onPressed: () =>
-                  navigateWithFade(context, const SmartMoneyTipsPage()),
-              style: TextButton.styleFrom(
-                backgroundColor: kPrimaryColor.withOpacity(0.1),
+            OutlinedButton.icon(
+              onPressed: () => navigateWithFade(context, const SmartMoneyTipsPage()),
+              icon: const Icon(Iconsax.book, size: 18),
+              label: const Text('Learn More'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.orange.shade700,
+                side: BorderSide(color: Colors.orange.shade300),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
-              child: const Text('LEARN MORE',
-                  style: TextStyle(
-                      color: kPrimaryColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  void _showNotificationsBottomSheet(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _NotificationsBottomSheet(),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -532,32 +748,50 @@ class _GreetingCard extends StatelessWidget {
     return Dismissible(
       key: const Key('greetingCard'),
       direction: DismissDirection.horizontal,
-      onDismissed: (_) => onDismissed(),
+      onDismissed: (_) {
+        HapticFeedback.mediumImpact();
+        onDismissed();
+      },
       background: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-            color: Colors.red, borderRadius: BorderRadius.circular(12)),
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(14),
+        ),
         alignment: Alignment.centerLeft,
         child: const Icon(Iconsax.trash, color: Colors.white),
       ),
       secondaryBackground: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-            color: Colors.red, borderRadius: BorderRadius.circular(12)),
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(14),
+        ),
         alignment: Alignment.centerRight,
         child: const Icon(Iconsax.trash, color: Colors.white),
       ),
       child: Container(
-        padding: const EdgeInsets.all(kDefaultPadding),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: kPrimaryColor.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [kPrimaryColor.withOpacity(0.1), Colors.green.shade50],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: kPrimaryColor.withOpacity(0.2)),
         ),
         child: Row(
           children: [
-            Icon(Iconsax.sun_1, color: kPrimaryColor, size: 36),
-            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kPrimaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Iconsax.sun_15, color: kPrimaryColor, size: 28),
+            ),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,26 +799,30 @@ class _GreetingCard extends StatelessWidget {
                   Text(
                     greeting,
                     style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: kPrimaryColor),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryColor,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Welcome to Greater Bulacan Livelihood Development Cooperative',
                     style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: kAppBarTextColor),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
                   ),
                 ],
               ),
             ),
             IconButton(
-              icon: Icon(Icons.close,
-                  color: kPrimaryColor.withOpacity(0.7), size: 20),
-              onPressed: onDismissed,
-              tooltip: 'Dismiss greeting',
+              icon: Icon(Icons.close, color: kPrimaryColor.withOpacity(0.7), size: 22),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onDismissed();
+              },
+              tooltip: 'Dismiss',
             )
           ],
         ),
@@ -597,50 +835,43 @@ class _NotificationBell extends StatelessWidget {
   final int unreadCount;
   final VoidCallback onPressed;
 
-  const _NotificationBell(
-      {super.key, required this.unreadCount, required this.onPressed});
+  const _NotificationBell({required this.unreadCount, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    final Color iconColor = kPrimaryColor;
-    final Color avatarBackgroundColor = kPrimaryColor.withOpacity(0.08);
-    final Color badgeBackgroundColor = Colors.red;
-    const double iconSize = 25.0;
-
     return Stack(
       alignment: Alignment.center,
       children: [
-        CircleAvatar(
-          backgroundColor: avatarBackgroundColor,
-          radius: 20,
+        Container(
+          decoration: BoxDecoration(
+            color: kPrimaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: IconButton(
-            icon: Icon(Iconsax.notification, color: iconColor, size: iconSize),
+            icon: const Icon(Iconsax.notification, color: kPrimaryColor, size: 24),
             onPressed: onPressed,
-            splashRadius: 24,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
           ),
         ),
         if (unreadCount > 0)
           Positioned(
-            right: 4,
-            top: 4,
+            right: 6,
+            top: 6,
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                  color: badgeBackgroundColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.0)),
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
               child: Center(
                 child: Text(
-                  unreadCount > 99 ? '99+' : '$unreadCount',
-                  textAlign: TextAlign.center,
+                  unreadCount > 9 ? '9+' : '$unreadCount',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      height: 1.1),
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -655,177 +886,327 @@ class _ActionCard extends StatelessWidget {
   final String subtitle;
   final String imagePath;
   final List<Widget> buttons;
+  final Gradient? gradient;
 
   const _ActionCard({
     required this.title,
     required this.subtitle,
     required this.imagePath,
     required this.buttons,
+    this.gradient,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        gradient: gradient ?? LinearGradient(
+          colors: [Colors.white, Colors.grey.shade50],
+        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          )
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
                     style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: kAppBarTextColor)),
-                const SizedBox(height: 4),
-                Text(subtitle,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-                const SizedBox(height: 12),
-                Wrap(spacing: 8, runSpacing: 8, children: buttons),
-              ],
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: kAppBarTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[700],
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(spacing: 8, runSpacing: 8, children: buttons),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
+            const SizedBox(width: 16),
+            Container(
               width: 90,
               height: 90,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.error, size: 90),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    child: Icon(Icons.image_not_supported,
+                      size: 40,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-void showNotificationsPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(builder: (context, setStateDialog) {
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 13.0),
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-          title: const Text('Notifications',
-              style: TextStyle(fontWeight: FontWeight.w400)),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: notifications.isEmpty
-                ? const Text('No notifications')
-                : ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: notifications.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      bool isUnread = unreadNotificationIndexes.contains(index);
-                      return Dismissible(
-                        key: Key(notifications[index]),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          child: const Icon(Iconsax.trash, color: Colors.white),
+class _NotificationsBottomSheet extends StatefulWidget {
+  @override
+  State<_NotificationsBottomSheet> createState() => _NotificationsBottomSheetState();
+}
+
+class _NotificationsBottomSheetState extends State<_NotificationsBottomSheet> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: kPrimaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        onDismissed: (_) {
-                          setStateDialog(() {
-                            unreadNotificationIndexes.remove(index);
-                            notifications.removeAt(index);
-                            unreadNotificationIndexes =
-                                unreadNotificationIndexes
-                                    .where((i) => i != index)
-                                    .map((i) => i > index ? i - 1 : i)
-                                    .toSet();
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          decoration: BoxDecoration(
+                        child: const Icon(
+                          Iconsax.notification,
+                          color: kPrimaryColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Notifications',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (NotificationManager.unreadCount > 0)
+                    TextButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        setState(() {
+                          NotificationManager.unreadNotificationIndexes.clear();
+                        });
+                      },
+                      child: const Text(
+                        'Mark all read',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: kPrimaryColor,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: NotificationManager.notifications.isEmpty
+                  ? Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Iconsax.notification_bing,
+                      size: 64,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No notifications',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                  : ListView.separated(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: NotificationManager.notifications.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  bool isUnread = NotificationManager.unreadNotificationIndexes.contains(index);
+                  return Dismissible(
+                    key: Key(NotificationManager.notifications[index]),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      child: const Icon(Iconsax.trash, color: Colors.white),
+                    ),
+                    onDismissed: (_) {
+                      HapticFeedback.mediumImpact();
+                      setState(() {
+                        NotificationManager.unreadNotificationIndexes.remove(index);
+                        NotificationManager.notifications.removeAt(index);
+                        NotificationManager.unreadNotificationIndexes =
+                            NotificationManager.unreadNotificationIndexes
+                                .where((i) => i != index)
+                                .map((i) => i > index ? i - 1 : i)
+                                .toSet();
+                      });
+                    },
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          NotificationManager.unreadNotificationIndexes.remove(index);
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isUnread ? Colors.green.shade50 : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
                             color: isUnread
-                                ? Colors.green.shade50
-                                : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(12),
+                                ? Colors.green.shade200
+                                : Colors.grey.shade200,
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 16),
-                            leading: Icon(Iconsax.notification,
-                                color: isUnread ? Colors.green : Colors.grey),
-                            title: Text(
-                              notifications[index],
-                              style: TextStyle(
-                                fontWeight: isUnread
-                                    ? FontWeight.w400
-                                    : FontWeight.normal,
-                                color:
-                                    isUnread ? Colors.black : Colors.grey[400],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: isUnread
+                                    ? Colors.green.shade100
+                                    : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Iconsax.notification,
+                                color: isUnread ? Colors.green : Colors.grey,
+                                size: 20,
                               ),
                             ),
-                            trailing: isUnread
-                                ? Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  )
-                                : null,
-                            onTap: () => setStateDialog(
-                                () => unreadNotificationIndexes.remove(index)),
-                          ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                NotificationManager.notifications[index],
+                                style: TextStyle(
+                                  fontWeight: isUnread
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: isUnread ? Colors.black : Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            if (isUnread)
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close',
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w400)),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            TextButton(
-              onPressed: () => setStateDialog(() {
-                unreadNotificationIndexes.clear();
-              }),
-              child: const Text('Mark all as read',
-                  style: TextStyle(
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(
                       fontSize: 16,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w400)),
+                      fontWeight: FontWeight.w600,
+                      color: kAppBarTextColor,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
-        );
-      });
-    },
-  );
+        ),
+      ),
+    );
+  }
 }
