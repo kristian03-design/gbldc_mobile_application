@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'landing_page.dart';
-import 'package:iconsax/iconsax.dart';// Replace with your actual landing page
+import 'package:iconsax/iconsax.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -16,12 +17,11 @@ class CreatePinScreen extends StatefulWidget {
 
 class _CreatePinScreenState extends State<CreatePinScreen> {
   final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
+  List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isComplete = false;
-  bool _isLoading = false;
-  double _progress = 0.0;
+  bool _obscurePin = true;
 
   @override
   void initState() {
@@ -57,29 +57,72 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   }
 
   Future<void> _handleContinue() async {
-    setState(() {
-      _isLoading = true;
-      _progress = 0.0;
-    });
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (_) => _buildLoadingDialog(),
+    );
 
-    for (int i = 0; i <= 100; i++) {
-      await Future.delayed(
-          const Duration(milliseconds: 5)); // Increased speed by reducing delay
-      setState(() {
-        _progress = i / 100;
-      });
-    }
+    // Simulate API call
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (!mounted) return;
 
+    // Close loading dialog
+    Navigator.of(context).pop();
+
+    // Show success dialog and handle navigation
     await _showSuccessDialog();
-    await _showWelcomeDialog();
+  }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => LandingPage()),
+  Widget _buildLoadingDialog() {
+    return ScaleTransition(
+      scale: CurvedAnimation(
+        parent: AnimationController(
+          duration: const Duration(milliseconds: 300),
+          vsync: Navigator.of(context),
+        )..forward(),
+        curve: Curves.easeOutBack,
+      ),
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        contentPadding: const EdgeInsets.all(32),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF16A34A)),
+                strokeWidth: 3,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Creating your PIN...",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF212529),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Please wait a moment",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -87,101 +130,111 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        content: SizedBox(
-          width: 380,
-          child: Column(
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (_) => ScaleTransition(
+        scale: CurvedAnimation(
+          parent: AnimationController(
+            duration: const Duration(milliseconds: 300),
+            vsync: Navigator.of(context),
+          )..forward(),
+          curve: Curves.easeOutBack,
+        ),
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: const EdgeInsets.all(32),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center, // Center icon horizontally
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Center( // Center the icon
-                child: Icon(
-                  Iconsax.tick_circle,
-                  color: Colors.green,
-                  size: 80,
-                ),
+              TweenAnimationBuilder(
+                duration: const Duration(milliseconds: 500),
+                tween: Tween<double>(begin: 0, end: 1),
+                builder: (context, double value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Iconsax.tick_circle,
+                        color: Colors.green.shade600,
+                        size: 70,
+                      ),
+                    ),
+                  );
+                },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'PIN Successfully Created!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: Color(0xFF212529),
                 ),
               ),
-              SizedBox(height: 12),
-              Text(
+              const SizedBox(height: 12),
+              const Text(
                 'You can now securely access your account using your 6-digit PIN.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Color(0xFF495057)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.of(context).pop();
-  }
-
-  Future<void> _showWelcomeDialog() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: SizedBox(
-          width: 380,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              SizedBox(height: 16),
-              Image(
-                image: AssetImage('assets/images/logocoop.png'),
-                height: 70,
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Welcome to GBLDC Mobile!',
-                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
+                  fontSize: 15,
+                  color: Color(0xFF495057),
+                  height: 1.5,
                 ),
               ),
-              SizedBox(height: 12),
-              Text(
-                "Let’s get started on your financial journey.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Color(0xFF495057)),
-              ),
             ],
           ),
         ),
       ),
     );
-    await Future.delayed(const Duration(seconds: 2));
+
+    // Wait and then close dialog and navigate
+    await Future.delayed(const Duration(milliseconds: 2000));
+
+    if (!mounted) return;
+
+    // Close the success dialog
     Navigator.of(context).pop();
+
+    // Small delay before navigation
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    if (!mounted) return;
+
+    // Navigate to landing page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => LandingPage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Iconsax.arrow_left, color: Color(0xFF1A1A1A)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 10),
               Image.asset(
                 'assets/images/logocoop.png',
                 height: 80,
@@ -202,6 +255,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
               const SizedBox(height: 40),
@@ -214,33 +268,110 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
                       keyboardType: TextInputType.number,
-                      obscureText: true,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(1),
+                      ],
+                      obscureText: _obscurePin,
                       maxLength: 1,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A1A),
                       ),
                       decoration: InputDecoration(
                         counterText: '',
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.grey),
+                          borderSide: const BorderSide(color: Color(0xFFDEE2E6)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Colors.green, width: 2),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF16A34A),
+                            width: 2,
+                          ),
                         ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
                       ),
                       onChanged: (value) => _moveFocus(index, value),
                     ),
                   );
                 }),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+
+              // View/Hide PIN Toggle
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _obscurePin = !_obscurePin;
+                    });
+                  },
+                  icon: Icon(
+                    _obscurePin ? Iconsax.eye_slash : Iconsax.eye,
+                    size: 18,
+                    color: const Color(0xFF16A34A),
+                  ),
+                  label: Text(
+                    _obscurePin ? 'Show PIN' : 'Hide PIN',
+                    style: const TextStyle(
+                      color: Color(0xFF16A34A),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Security tip
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.blue.shade100,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Iconsax.shield_tick,
+                      color: Colors.blue.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "Choose a PIN that's easy to remember but hard for others to guess.",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.blue.shade900,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
               ElevatedButton(
-                onPressed: _isComplete && !_isLoading ? _handleContinue : null,
+                onPressed: _isComplete ? _handleContinue : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF16A34A),
                   disabledBackgroundColor: Colors.green.withOpacity(0.4),
@@ -250,36 +381,16 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          value: _progress,
-                          color: Colors.white,
-                          backgroundColor: Colors.green.shade100,
-                          strokeWidth: 3.0,
-                        ),
-                      )
-                    : const Text(
-                        "Continue",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-              ),
-              const SizedBox(height: 30),
-              const Text(
-                "Your PIN will remain private and secure.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontStyle: FontStyle.italic,
+                child: const Text(
+                  "Continue",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
