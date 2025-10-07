@@ -5,6 +5,7 @@ import 'forgot_password.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'onboarding_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,10 +33,29 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Iconsax.arrow_left, color: Color(0xFF1A1A1A)),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  transitionDuration: const Duration(milliseconds: 400),
+                  pageBuilder: (context, animation, _) => const OnboardingScreen(),
+                  transitionsBuilder: (context, animation, _, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
           child: Form(
             key: _formKey,
             child: Column(
@@ -289,59 +309,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Divider with "or continue with"
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Social Login Buttons
-                Column(
-                  children: [
-                    _buildSocialButton(
-                      iconPath: 'assets/images/google-logo.png',
-                      text: 'Sign in with Google',
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF1A1A1A),
-                      onTap: _handleGoogleSignIn,
-                      hasBorder: true,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSocialButton(
-                      iconPath: 'assets/images/facebook.png',
-                      text: 'Sign in with Facebook',
-                      backgroundColor: const Color(0xFF1877F2),
-                      foregroundColor: Colors.white,
-                      onTap: _handleFacebookSignIn,
-                      hasBorder: false,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-
                 // Register
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -372,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        "Register",
+                        "Create an Account",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF16A34A),

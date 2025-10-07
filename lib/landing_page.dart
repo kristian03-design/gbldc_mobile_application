@@ -353,7 +353,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                   ),
                 ),
                 Text(
-                  'Cooperative',
+                  'Landing Page',
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -364,6 +364,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
             ),
           ],
         ),
+
         _NotificationBell(
           unreadCount: NotificationManager.unreadCount,
           onPressed: () => _showNotificationsBottomSheet(context),

@@ -361,7 +361,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  "Enter OTP Code",
+                  "Enter PIN Code",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -370,7 +370,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  "We've sent a 6-digit OTP to your email.\nPlease enter the code below to verify.",
+                  "To verify its your account, please enter the 6-digit PIN code that you created earlier.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -465,54 +465,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Timer and Resend
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (!_canResend) ...[
-                      Icon(
-                        Iconsax.timer_1,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    Text(
-                      _canResend
-                          ? "Didn't receive the code?"
-                          : "Resend code in $_secondsRemaining seconds",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-
-                if (_canResend) const SizedBox(height: 8),
-
-                // Resend Button
-                if (_canResend)
-                  TextButton.icon(
-                    onPressed: _resendCode,
-                    icon: const Icon(
-                      Iconsax.refresh,
-                      size: 18,
-                      color: Color(0xFF16A34A),
-                    ),
-                    label: const Text(
-                      "Resend Code",
-                      style: TextStyle(
-                        color: Color(0xFF16A34A),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-
+                const SizedBox(height: 20),
                 const SizedBox(height: 40),
 
                 // Info Card

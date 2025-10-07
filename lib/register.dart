@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:gbldc_app/login_form.dart';
 import 'verify_email.dart';
 import 'package:iconsax/iconsax.dart';
+import 'onboarding_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -95,7 +96,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Iconsax.arrow_left, color: Color(0xFF1A1A1A)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                transitionDuration: const Duration(milliseconds: 400),
+                pageBuilder: (context, animation, _) => const OnboardingScreen(),
+                transitionsBuilder: (context, animation, _, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              ),
+            );
+          },
         ),
       ),
       body: SafeArea(
