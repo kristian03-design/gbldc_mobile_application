@@ -88,7 +88,7 @@ class _EmergencyContactsPageState extends State<EmergencyContactsPage> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Emergency Contacts",
+                  "Guarantor Information",
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -102,7 +102,7 @@ class _EmergencyContactsPageState extends State<EmergencyContactsPage> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  "Emergency Contact 1",
+                  "Guarantor Details 1",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
@@ -138,7 +138,7 @@ class _EmergencyContactsPageState extends State<EmergencyContactsPage> {
                     hint: "Enter contact's home address"),
                 const SizedBox(height: 30),
                 const Text(
-                  "Emergency Contact 2",
+                  "Guarantor Details 2",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),

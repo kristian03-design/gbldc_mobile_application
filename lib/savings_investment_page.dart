@@ -10,7 +10,7 @@ class SavingsAndInvestmentPage extends StatelessWidget {
       backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
         title: const Text(
-          'Savings & Investments',
+          'Savings & Deposits',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,

@@ -10,7 +10,7 @@ class InsurancePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
         title: const Text(
-          'Member Benefits',
+          'Insurance',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,

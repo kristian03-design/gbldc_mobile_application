@@ -34,7 +34,7 @@ class _ExploreServicesPageState extends State<ExploreServicesPage> {
     ),
     ServiceCategory(
       icon: Iconsax.save_2,
-      title: "Savings & Investments",
+      title: "Savings & Deposits",
       services: [
         "Savings Account – Secure & grow",
         "Time Deposit – Higher returns",
@@ -310,7 +310,7 @@ class _ExploreServicesPageState extends State<ExploreServicesPage> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                if (section.title == "Savings & Investments") {
+                if (section.title == "Savings & Deposits") {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const SavingsAndInvestmentPage()),
